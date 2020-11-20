@@ -17,6 +17,23 @@ class State:
              random.randrange(0, 255)
         )
 
+    def update(self):
+        self.button_a = check("A")
+        self.button_b = check("B")
+
+        if self.button_a:
+            print("LED on")
+            self.led = True
+        else:
+            self.led = False
+
+        if self.button_b:
+            print("RGB on. Color: {}".format(state.color))
+            self.rgb = True
+        else:
+            self.rgb = False
+            self.random_color()
+
     def __repr__(self):
         return "<Buttons: {}/{}, LED: {}, Color: {}>".format(self.button_a, self.button_b, self.led, self.color)
 
@@ -24,22 +41,7 @@ state = State()
 
 while True:
     # update the state
-    state.button_a = check("A")
-    state.button_b = check("B")
-
-    # take action - change the state
-    if state.button_a:
-        print("LED: on")
-        state.led = True
-    else:
-        state.led = False
-
-    if state.button_b:
-        print("RGB on. Color: {}".format(state.color))
-        state.rgb = True
-    else:
-        state.rgb = False
-        state.random_color()
+    state.update()
 
     # take action - do things that cause side effects
     led.value = state.led
