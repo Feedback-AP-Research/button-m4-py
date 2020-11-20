@@ -1,24 +1,41 @@
-# save as setup.py
-import board
-import neopixel
-from digitalio import DigitalInOut, Direction, Pull
+import time
+from setup import led, rgb, check
 
-led = DigitalInOut(board.D13)
-led.direction = Direction.OUTPUT
+class State:
+    def __init__(self):
+        self.led = False
+        self.button_a = False
+        self.button_b = False
+        self.rgb = False
+        self.color = (255, 255, 255)
 
-rgb = neopixel.NeoPixel(board.NEOPIXEL, 1)
-rgb.brightness = 0.3
+    def __repr__(self):
+        return "<Buttons: {}/{}, LED: {}, RGB: {}, Color: {}>".format(self.button_a, self.button_b, self.led, self.rgb, self.color)
 
-a_button = DigitalInOut(board.D4)
-a_button.direction = Direction.INPUT
-a_button.pull = Pull.DOWN
+state = State()
 
-b_button = DigitalInOut(board.D5)
-b_button.direction = Direction.INPUT
-b_button.pull = Pull.DOWN
+while True:
+    # first pass: check real life
+    state.button_a = check("A")
+    state.button_b = check("B")
 
-def check(token):
-    if token == "A":
-        return a_button.value
-    if token == "B":
-        return b_button.value
+    # second pass: assess state
+    if state.button_a:
+        state.led = True
+    else:
+        state.led = False
+
+    if state.button_b:
+        state.rgb = True
+    else:
+        state.rgb = False
+
+    # third pass: reconcile state
+    led.value = state.led
+
+    if state.rgb:
+        rgb.fill(state.color)
+    else:
+        rgb.fill((0, 0, 0))
+
+    time.sleep(0.2)
