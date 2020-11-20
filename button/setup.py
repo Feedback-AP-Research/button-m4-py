@@ -3,12 +3,15 @@ import random
 from setup import led, rgb, check
 
 class State:
+    _debounce = 0.2
+
     def __init__(self):
         self.button_a = False
         self.button_b = False
         self.led = False
         self.rgb = False
         self.color = (255, 255, 255)
+        self.checkin = time.monotonic()
 
     def random_color(self):
         self.color = (
@@ -18,21 +21,24 @@ class State:
         )
 
     def update(self):
-        self.button_a = check("A")
-        self.button_b = check("B")
+        if time.monotonic() - self.checkin > self._debounce:
+            self.button_a = check("A")
+            self.button_b = check("B")
 
-        if self.button_a:
-            print("LED on")
-            self.led = True
-        else:
-            self.led = False
+            if self.button_a:
+                print("LED on")
+                self.led = True
+            else:
+                self.led = False
 
-        if self.button_b:
-            print("RGB on. Color: {}".format(state.color))
-            self.rgb = True
-        else:
-            self.rgb = False
-            self.random_color()
+            if self.button_b:
+                ﻿print("RGB on. Color: {}".format(self.color))
+                self.rgb = True
+            else:
+                self.rgb = False
+                self.random_color()
+
+            self.checkin = time.monotonic()
 
     def __repr__(self):
         return "<Buttons: {}/{}, LED: {}, Color: {}>".format(self.button_a, self.button_b, self.led, self.color)
@@ -50,5 +56,3 @@ while True:
         rgb[0] = state.color
     else:
         rgb[0] = (0, 0, 0)
-
-    time.sleep(0.2)
