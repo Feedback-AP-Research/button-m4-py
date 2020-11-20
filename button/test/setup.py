@@ -1,37 +1,40 @@
 import time
 from setup import led, rgb, check
 
-# review of what the setup module does for us:
-#
-#   - led is our digital pin object connected to pin 13
-#   - rgb is our DotStar or NeoPixel
-#   - check() is a function that handles differences between button wiring
+class State:
+    def __init__(self):
+        self.led = False
+        self.button_a = False
+        self.button_b = False
+        self.rgb = False
+        self.color = (255, 255, 255)
 
-# these state variables need specific names
-led_state = False
-button_a_state = False
-button_b_state = False
-rgb_state = False
-rgb_color = (255, 255, 255)
+    def __repr__(self):
+        return "<Buttons: {}/{}, LED: {}, RGB: {}, Color: {}>".format(self.button_a, self.button_b, self.led, self.rgb, self.color)
+
+state = State()
 
 while True:
-    button_a_state = check("A")
-    button_b_state = check("B")
+    # first pass: check real life
+    state.button_a = check("A")
+    state.button_b = check("B")
 
-    if button_a_state:
-        led_state = True
+    # second pass: assess state
+    if state.button_a:
+        state.led = True
     else:
-        led_state = False
+        state.led = False
 
-    if button_b_state:
-        rgb_state = True
+    if state.button_b:
+        state.rgb = True
     else:
-        rgb_state = False
+        state.rgb = False
 
-    led.value = led_state
+    # third pass: reconcile state
+    led.value = state.led
 
-    if rgb_state:
-        rgb.fill(rgb_color)
+    if state.rgb:
+        rgb.fill(state.color)
     else:
         rgb.fill((0, 0, 0))
 
