@@ -1,24 +1,38 @@
-# save as setup.py
-import board
-import neopixel
-from digitalio import DigitalInOut, Direction, Pull
+import time
+from setup import led, rgb, check
 
-led = DigitalInOut(board.D13)
-led.direction = Direction.OUTPUT
+# review of what the setup module does for us:
+#
+#   - led is our digital pin object connected to pin 13
+#   - rgb is our DotStar or NeoPixel
+#   - check() is a function that handles differences between button wiring
 
-rgb = neopixel.NeoPixel(board.NEOPIXEL, 1)
-rgb.brightness = 0.3
+# these state variables need specific names
+led_state = False
+button_a_state = False
+button_b_state = False
+rgb_state = False
+rgb_color = (255, 255, 255)
 
-a_button = DigitalInOut(board.D4)
-a_button.direction = Direction.INPUT
-a_button.pull = Pull.DOWN
+while True:
+    button_a_state = check("A")
+    button_b_state = check("B")
 
-b_button = DigitalInOut(board.D5)
-b_button.direction = Direction.INPUT
-b_button.pull = Pull.DOWN
+    if button_a_state:
+        led_state = True
+    else:
+        led_state = False
 
-def check(token):
-    if token == "A":
-        return a_button.value
-    if token == "B":
-        return b_button.value
+    if button_b_state:
+        rgb_state = True
+    else:
+        rgb_state = False
+
+    led.value = led_state
+
+    if rgb_state:
+        rgb.fill(rgb_color)
+    else:
+        rgb.fill((0, 0, 0))
+
+    time.sleep(0.2)
